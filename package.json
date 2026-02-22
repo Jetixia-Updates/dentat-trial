@@ -1,0 +1,25 @@
+{
+  "name": "dental-clinic-system",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Complete Dental Clinic Management System",
+  "scripts": {
+    "setup": "pnpm install && pnpm db:generate",
+    "dev": "concurrently \"pnpm dev:web\" \"pnpm dev:api\"",
+    "dev:web": "pnpm --filter web dev",
+    "dev:api": "pnpm --filter api dev",
+    "build": "pnpm --filter shared build && pnpm -r build",
+    "db:generate": "pnpm --filter database generate",
+    "db:push": "dotenv -e .env -e .env.local -- pnpm --filter database db:push",
+    "db:studio": "dotenv -e .env -e .env.local -- pnpm --filter database db:studio",
+    "db:migrate": "dotenv -e .env -e .env.local -- pnpm --filter database db:migrate",
+    "db:seed": "dotenv -e .env -e .env.local -- pnpm --filter database db:seed"
+  },
+  "devDependencies": {
+    "concurrently": "^8.2.2",
+    "dotenv-cli": "^7.4.2"
+  },
+  "engines": {
+    "node": ">=18.0.0"
+  }
+}
