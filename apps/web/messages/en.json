@@ -337,7 +337,13 @@
   },
   "about": {
     "title": "About Us",
-    "subtitle": "Premium dental clinic committed to exceptional care"
+    "subtitle": "Premium dental clinic committed to exceptional care",
+    "mission": "Our Mission",
+    "missionDesc": "To provide the highest quality dental care in a comfortable, modern environment for every patient.",
+    "vision": "Our Vision",
+    "visionDesc": "To be the leading dental clinic in the region, trusted for excellence and patient-centered care.",
+    "values": "Our Values",
+    "valuesDesc": "Integrity, excellence, and compassion guide everything we do for our patients and community."
   },
   "patient": { "title": "Patient Portal", "dashboard": "Dashboard", "myAppointments": "My Appointments", "medicalHistory": "Medical History" },
   "doctor": { "title": "Doctor Portal", "dashboard": "Dashboard", "schedule": "Schedule", "patients": "Patients" },
