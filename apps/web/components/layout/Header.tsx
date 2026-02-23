@@ -1,77 +1,72 @@
 "use client";
 
-import { Link, usePathname } from "@/i18n/navigation";
-import { Menu, Phone, MessageCircle, Stethoscope } from "lucide-react";
+import { Link } from "@/i18n/navigation";
 import { useTranslations } from "next-intl";
+import { Stethoscope, Menu, X } from "lucide-react";
+import { useState } from "react";
 import { AuthButtons } from "@/components/auth/AuthButtons";
 import { LanguageSwitcher } from "@/components/LanguageSwitcher";
-import { cn } from "@/lib/cn";
 
-const navPaths = [
-  { href: "/", labelKey: "home" },
-  { href: "/about", labelKey: "about" },
-  { href: "/services", labelKey: "services" },
-  { href: "/doctors", labelKey: "doctors" },
-  { href: "/book", labelKey: "book" },
-  { href: "/contact", labelKey: "contact" },
+const navItems = [
+  { href: "/", labelKey: "home" as const },
+  { href: "/services", labelKey: "services" as const },
+  { href: "/doctors", labelKey: "doctors" as const },
+  { href: "/branches", labelKey: "branches" as const },
+  { href: "/insurance", labelKey: "insurance" as const },
+  { href: "/book", labelKey: "book" as const },
+  { href: "/contact", labelKey: "contact" as const },
 ] as const;
 
 export function Header() {
-  const pathname = usePathname();
   const t = useTranslations("nav");
+  const [open, setOpen] = useState(false);
 
   return (
-    <header className="fixed top-0 left-0 right-0 z-50 glass">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="flex items-center justify-between h-16 lg:h-20">
-          <Link href="/" className="flex items-center gap-2">
-            <div className="w-10 h-10 rounded-xl bg-primary flex items-center justify-center">
-              <Stethoscope className="w-6 h-6 text-white" />
-            </div>
-            <span className="font-bold text-xl text-content">
-              Dental Clinic
-            </span>
-          </Link>
-
-          <nav className="hidden md:flex items-center gap-6">
-            {navPaths.map(({ href, labelKey }) => (
-              <Link
-                key={href}
-                href={href}
-                className={cn(
-                  "text-sm font-medium transition-colors hover:text-primary",
-                  pathname === href || (href !== "/" && pathname.startsWith(href))
-                    ? "text-primary"
-                    : "text-content-soft"
-                )}
-              >
-                {t(labelKey)}
-              </Link>
-            ))}
-          </nav>
-
-          <div className="flex items-center gap-3">
-            <LanguageSwitcher />
-            <a
-              href="tel:+20123456789"
-              className="hidden sm:flex items-center gap-2 text-sm text-content-soft hover:text-primary"
-            >
-              <Phone className="w-4 h-4" />
-              <span>+20 123 456 789</span>
-            </a>
-            <a
-              href="https://wa.me/20123456789"
-              target="_blank"
-              rel="noopener noreferrer"
-              className="hidden sm:flex items-center gap-2 text-sm text-green-600 hover:text-green-700"
-            >
-              <MessageCircle className="w-4 h-4" />
-              <span>WhatsApp</span>
-            </a>
-            <AuthButtons />
+    <header className="fixed top-0 left-0 right-0 z-50 glass border-b border-white/40">
+      <div className="max-w-6xl mx-auto px-4 flex items-center justify-between h-16 md:h-18">
+        <Link href="/" className="flex items-center gap-2 group">
+          <div className="w-10 h-10 rounded-xl bg-primary flex items-center justify-center shadow-lg shadow-primary/20 group-hover:shadow-primary/30 transition-shadow">
+            <Stethoscope className="w-5 h-5 text-white" />
           </div>
+          <span className="font-bold text-xl text-content hidden sm:inline">Dental Clinic</span>
+        </Link>
+        <nav className="hidden md:flex items-center gap-1">
+          {navItems.map(({ href, labelKey }) => (
+            <Link
+              key={href}
+              href={href}
+              className="px-4 py-2 rounded-xl text-content-soft hover:bg-primary/5 hover:text-primary font-medium transition-colors"
+            >
+              {t(labelKey)}
+            </Link>
+          ))}
+        </nav>
+        <div className="flex items-center gap-3">
+          <LanguageSwitcher />
+          <AuthButtons />
+          <button
+            type="button"
+            className="md:hidden p-2 rounded-xl hover:bg-primary/10"
+            onClick={() => setOpen(!open)}
+          >
+            {open ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
+          </button>
         </div>
       </div>
+      {open && (
+        <nav className="md:hidden border-t border-cyan-100 p-4 space-y-1">
+          {navItems.map(({ href, labelKey }) => (
+            <Link
+              key={href}
+              href={href}
+              className="block px-4 py-3 rounded-xl text-content-soft hover:bg-primary/5 font-medium"
+              onClick={() => setOpen(false)}
+            >
+              {t(labelKey)}
+            </Link>
+          ))}
+        </nav>
+      )}
     </header>
   );
 }

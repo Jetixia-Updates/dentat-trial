@@ -14,6 +14,10 @@ import { servicesRoutes } from "./routes/services.js";
 import { branchesRoutes } from "./routes/branches.js";
 import { bookingsRoutes } from "./routes/bookings.js";
 import { contactRoutes } from "./routes/contact.js";
+import { adminRoutes } from "./routes/admin.js";
+import { insuranceRoutes } from "./routes/insurance.js";
+import { reportsRoutes } from "./routes/reports.js";
+import { billingRoutes } from "./routes/billing.js";
 
 const app = express();
 const PORT = process.env.PORT || 4000;
@@ -33,6 +37,10 @@ app.use("/api/services", servicesRoutes);
 app.use("/api/branches", branchesRoutes);
 app.use("/api/bookings", bookingsRoutes);
 app.use("/api/contact", contactRoutes);
+app.use("/api/admin", adminRoutes);
+app.use("/api/insurance", insuranceRoutes);
+app.use("/api/reports", reportsRoutes);
+app.use("/api/billing", billingRoutes);
 
 // Global error handler
 app.use((err: Error, _req: express.Request, res: express.Response, _next: express.NextFunction) => {

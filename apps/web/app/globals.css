@@ -2,29 +2,34 @@
 @tailwind components;
 @tailwind utilities;
 
-:root {
-  --background: #ffffff;
-  --background-soft: #fafcff;
-  --foreground: #0c4a6e;
-  --foreground-soft: #0369a1;
-  --primary: #0891b2;
-  --primary-light: #22d3ee;
-  --accent: #0ea5e9;
+@layer base {
+  html {
+    @apply antialiased;
+  }
+  body {
+    @apply bg-surface-soft text-content;
+  }
+  /* Light backgrounds for input areas, dark text for readability */
+  input, textarea, select {
+    @apply bg-white text-slate-900;
+  }
+  input::placeholder, textarea::placeholder {
+    @apply text-slate-500;
+  }
 }
 
-body {
-  color: var(--foreground);
-  background: var(--background);
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
-}
-
-/* RTL Support */
-[dir="rtl"] {
-  font-family: var(--font-arabic), system-ui, sans-serif;
-}
-
-/* 8K Glass - premium light */
-.glass {
-  @apply bg-white/90 backdrop-blur-2xl border border-cyan-100/50 shadow-sm shadow-cyan-100/20;
+@layer components {
+  .glass {
+    @apply bg-white/80 backdrop-blur-md border border-white/60 shadow-xl shadow-slate-200/50;
+  }
+  .input-field {
+    @apply w-full rounded-xl border border-slate-200 bg-white text-slate-900 px-4 py-3 placeholder:text-slate-500 focus:ring-2 focus:ring-primary focus:border-transparent;
+  }
+  .scrollbar-hide {
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+  }
+  .scrollbar-hide::-webkit-scrollbar {
+    display: none;
+  }
 }

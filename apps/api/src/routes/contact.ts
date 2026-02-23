@@ -1,11 +1,12 @@
 import { Router } from "express";
+import { contactSchema } from "shared";
 
 const router = Router();
 
 router.post("/", (req, res) => {
-  const { name, email, message } = req.body;
-  if (!name || !email || !message) {
-    return res.status(400).json({ code: "VALIDATION_ERROR", message: "Name, email and message required" });
+  const parsed = contactSchema.safeParse(req.body);
+  if (!parsed.success) {
+    return res.status(400).json({ code: "VALIDATION_ERROR", errors: parsed.error.flatten() });
   }
   // In production: send email / save to DB
   res.json({ success: true, message: "Message sent. We will contact you soon." });

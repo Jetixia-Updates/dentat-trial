@@ -8,6 +8,11 @@ import {
   Calendar,
   FileText,
   Settings,
+  Stethoscope,
+  MapPin,
+  Briefcase,
+  CreditCard,
+  Shield,
 } from "lucide-react";
 import { cn } from "@/lib/cn";
 import { LogoutButton } from "@/components/auth/LogoutButton";
@@ -16,7 +21,12 @@ const navPaths = [
   { href: "/admin", labelKey: "dashboard", icon: LayoutDashboard },
   { href: "/admin/patients", labelKey: "patients", icon: Users },
   { href: "/admin/appointments", labelKey: "appointments", icon: Calendar },
+  { href: "/admin/doctors", labelKey: "doctors", icon: Stethoscope },
+  { href: "/admin/branches", labelKey: "branches", icon: MapPin },
+  { href: "/admin/services", labelKey: "pricing", icon: Briefcase },
+  { href: "/admin/billing", labelKey: "billing", icon: CreditCard },
   { href: "/admin/reports", labelKey: "reports", icon: FileText },
+  { href: "/admin/insurance", labelKey: "insurance", icon: Shield },
   { href: "/admin/settings", labelKey: "settings", icon: Settings },
 ] as const;
 

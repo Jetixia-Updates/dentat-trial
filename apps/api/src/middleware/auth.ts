@@ -1,9 +1,6 @@
 import { Request, Response, NextFunction } from "express";
 import jwt from "jsonwebtoken";
-import { PrismaClient } from "database";
 import type { Role } from "shared";
-
-const prisma = new PrismaClient();
 
 export interface JwtPayload {
   userId: string;

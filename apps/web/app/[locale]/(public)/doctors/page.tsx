@@ -22,7 +22,7 @@ export default function DoctorsPage() {
   }, []);
 
   return (
-    <main className="pt-24 pb-16">
+    <main className="pt-8 pb-16">
       <div className="max-w-6xl mx-auto px-4">
         <h1 className="text-4xl font-bold text-content text-center">{t("title")}</h1>
         <p className="mt-4 text-content-soft text-center">{t("subtitle")}</p>

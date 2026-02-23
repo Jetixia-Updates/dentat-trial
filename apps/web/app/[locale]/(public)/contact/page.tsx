@@ -37,7 +37,7 @@ export default function ContactPage() {
   }
 
   return (
-    <main className="pt-24 pb-16">
+    <main className="pt-8 pb-16">
       <div className="max-w-4xl mx-auto px-4">
         <h1 className="text-4xl font-bold text-content text-center">{t("title")}</h1>
         <div className="mt-12 grid md:grid-cols-2 gap-8">
@@ -97,21 +97,21 @@ export default function ContactPage() {
                   required
                   type="text"
                   placeholder={t("yourName")}
-                  className="w-full rounded-xl border border-cyan-200 bg-white px-4 py-3 focus:ring-2 focus:ring-primary"
+                  className="w-full rounded-xl border border-slate-200 bg-white text-slate-900 px-4 py-3 placeholder:text-slate-500 focus:ring-2 focus:ring-primary"
                 />
                 <input
                   name="email"
                   required
                   type="email"
                   placeholder={t("email")}
-                  className="w-full rounded-xl border border-cyan-200 bg-white px-4 py-3 focus:ring-2 focus:ring-primary"
+                  className="w-full rounded-xl border border-slate-200 bg-white text-slate-900 px-4 py-3 placeholder:text-slate-500 focus:ring-2 focus:ring-primary"
                 />
                 <textarea
                   name="message"
                   required
                   placeholder={t("message")}
                   rows={4}
-                  className="w-full rounded-xl border border-cyan-200 bg-white px-4 py-3 focus:ring-2 focus:ring-primary"
+                  className="w-full rounded-xl border border-slate-200 bg-white text-slate-900 px-4 py-3 placeholder:text-slate-500 focus:ring-2 focus:ring-primary"
                 />
                 <Button type="submit" className="w-full" disabled={loading}>
                   {loading ? t("sending") : t("send")}

@@ -43,7 +43,24 @@ export const createAppointmentSchema = z.object({
     "ORAL_SURGERY",
     "PEDIATRIC_DENTISTRY",
     "PERIODONTICS",
+    "RADIOLOGY",
   ]),
   reason: z.string().optional(),
   notes: z.string().optional(),
+});
+
+export const bookingSchema = z.object({
+  name: z.string().min(2),
+  phone: z.string().min(10),
+  email: z.string().email().optional(),
+  branchId: z.string(),
+  doctorId: z.string(),
+  date: z.string(),
+  insuranceId: z.string().optional(),
+});
+
+export const contactSchema = z.object({
+  name: z.string().min(2),
+  email: z.string().email(),
+  message: z.string().min(10),
 });

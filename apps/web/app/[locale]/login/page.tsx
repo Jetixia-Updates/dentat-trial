@@ -4,9 +4,16 @@ import { useState } from "react";
 import { useRouter } from "@/i18n/navigation";
 import { Link } from "@/i18n/navigation";
 import { useTranslations } from "next-intl";
-import { Stethoscope } from "lucide-react";
+import { Stethoscope, Shield, UserCircle, Users, ClipboardList } from "lucide-react";
 import { Button } from "@/components/ui/Button";
 import { api } from "@/lib/api";
+
+const DEMO_CREDENTIALS = [
+  { email: "demo@dental.com", password: "Demo@123", path: "/admin", icon: Shield },
+  { email: "doctor@dental.com", password: "Demo@123", path: "/doctor", icon: UserCircle },
+  { email: "patient@dental.com", password: "Demo@123", path: "/patient", icon: Users },
+  { email: "reception@dental.com", password: "Demo@123", path: "/reception", icon: ClipboardList },
+] as const;
 
 export default function LoginPage() {
   const t = useTranslations("login");
@@ -43,15 +50,15 @@ export default function LoginPage() {
   }
 
   return (
-    <main className="min-h-screen flex items-center justify-center bg-surface-soft p-4">
+    <main className="min-h-screen flex items-center justify-center bg-gradient-to-br from-cyan-50 via-white to-teal-50 p-4">
       <div className="w-full max-w-md">
-        <div className="glass rounded-2xl p-8 shadow-xl">
+        <div className="glass rounded-3xl p-8 shadow-xl border border-white/60">
           <div className="text-center mb-8">
-            <Link href="/" className="inline-flex items-center gap-2 mb-4">
-              <div className="w-12 h-12 rounded-xl bg-primary flex items-center justify-center">
-                <Stethoscope className="w-7 h-7 text-white" />
+            <Link href="/" className="inline-flex items-center gap-3 mb-6">
+              <div className="w-14 h-14 rounded-2xl bg-primary flex items-center justify-center shadow-lg shadow-primary/20">
+                <Stethoscope className="w-8 h-8 text-white" />
               </div>
-              <span className="font-bold text-xl">Dental Clinic</span>
+              <span className="font-bold text-2xl text-content">Dental Clinic</span>
             </Link>
             <h1 className="text-2xl font-bold text-content">{t("title")}</h1>
             <p className="text-content-soft mt-1">{t("subtitle")}</p>
@@ -67,8 +74,8 @@ export default function LoginPage() {
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
                 required
-                className="w-full rounded-xl border border-cyan-200 bg-white px-4 py-3 focus:ring-2 focus:ring-primary"
-                placeholder="admin@dental.com"
+                className="w-full rounded-xl border border-slate-200 bg-white text-slate-900 px-4 py-3 placeholder:text-slate-500 focus:ring-2 focus:ring-primary focus:border-transparent transition-all"
+                placeholder="demo@dental.com"
               />
             </div>
             <div>
@@ -78,16 +85,55 @@ export default function LoginPage() {
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
                 required
-                className="w-full rounded-xl border border-cyan-200 bg-white px-4 py-3 focus:ring-2 focus:ring-primary"
+                className="w-full rounded-xl border border-slate-200 bg-white text-slate-900 px-4 py-3 placeholder:text-slate-500 focus:ring-2 focus:ring-primary focus:border-transparent transition-all"
                 placeholder="••••••••"
               />
             </div>
-            <Button type="submit" className="w-full" disabled={loading}>
+            <Button type="submit" className="w-full" size="lg" disabled={loading}>
               {loading ? t("signingIn") : t("signIn")}
             </Button>
           </form>
-          <p className="mt-6 text-center text-sm text-content-muted">{t("demo")}</p>
-          <Link href="/" className="block mt-4 text-center text-primary hover:underline text-sm">
+          <div className="mt-6 pt-6 border-t border-cyan-100">
+            <p className="text-sm font-medium text-content-soft mb-3">{t("quickAccess")}</p>
+            <div className="grid grid-cols-2 gap-2">
+              {DEMO_CREDENTIALS.map(({ email: e, password: p, path, icon: Icon }) => (
+                <Button
+                  key={path}
+                  type="button"
+                  variant="outline"
+                  size="sm"
+                  className="flex items-center justify-center gap-2"
+                  disabled={loading}
+                  onClick={async () => {
+                    setError("");
+                    setLoading(true);
+                    try {
+                      const res = await api<{ accessToken: string; user: { role: string } }>("/api/auth/login", {
+                        method: "POST",
+                        body: JSON.stringify({ email: e, password: p }),
+                      });
+                      if (typeof window !== "undefined") {
+                        localStorage.setItem("token", res.accessToken);
+                        localStorage.setItem("user", JSON.stringify(res.user));
+                      }
+                      router.push(path);
+                    } catch (err: unknown) {
+                      setError(err instanceof Error ? err.message : "Login failed");
+                    } finally {
+                      setLoading(false);
+                    }
+                  }}
+                >
+                  <Icon className="w-4 h-4" />
+                  {path === "/admin" && t("adminPanel")}
+                  {path === "/doctor" && t("doctorPanel")}
+                  {path === "/patient" && t("patientPanel")}
+                  {path === "/reception" && t("receptionPanel")}
+                </Button>
+              ))}
+            </div>
+          </div>
+          <Link href="/" className="block mt-6 text-center text-primary hover:underline text-sm font-medium">
             {t("backToHome")}
           </Link>
         </div>

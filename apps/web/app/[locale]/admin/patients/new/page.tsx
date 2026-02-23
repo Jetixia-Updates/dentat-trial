@@ -1,14 +1,16 @@
 "use client";
 
 import { useState } from "react";
-import { useRouter } from "@/i18n/navigation";
+import { useRouter } from "next/navigation";
 import { Link } from "@/i18n/navigation";
+import { useTranslations } from "next-intl";
 import { api } from "@/lib/api";
 import { Button } from "@/components/ui/Button";
 import { ArrowLeft } from "lucide-react";
 
 export default function NewPatientPage() {
   const router = useRouter();
+  const t = useTranslations("admin");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
 
@@ -27,6 +29,8 @@ export default function NewPatientPage() {
           phone: data.get("phone"),
           email: data.get("email") || undefined,
           address: data.get("address") || undefined,
+          dateOfBirth: data.get("dateOfBirth") || undefined,
+          gender: data.get("gender") || undefined,
         }),
       });
       router.push("/admin/patients");
@@ -39,39 +43,57 @@ export default function NewPatientPage() {
 
   return (
     <div>
-      <Link href="/admin/patients" className="inline-flex items-center gap-2 text-slate-600 hover:text-primary mb-6">
+      <Link href="/admin/patients" className="inline-flex items-center gap-2 text-primary hover:underline mb-6">
         <ArrowLeft className="w-4 h-4" />
-        Back to Patients
+        {t("backToPatients")}
       </Link>
-      <h1 className="text-3xl font-bold text-slate-900 dark:text-white mb-8">Add Patient</h1>
+      <h1 className="text-3xl font-bold text-content mb-8">{t("addPatient")}</h1>
       <form onSubmit={handleSubmit} className="glass rounded-2xl p-8 max-w-xl space-y-6">
         {error && (
-          <div className="rounded-xl bg-red-50 dark:bg-red-900/20 text-red-600 px-4 py-3">{error}</div>
+          <div className="rounded-xl bg-red-50 text-red-600 dark:bg-red-900/20 px-4 py-3">{error}</div>
         )}
         <div className="grid sm:grid-cols-2 gap-6">
           <div>
-            <label className="block text-sm font-medium mb-2">First Name</label>
-            <input name="firstName" required className="w-full rounded-xl border border-slate-200 px-4 py-3 focus:ring-2 focus:ring-primary dark:bg-slate-800" />
+            <label className="block text-sm font-medium mb-2 text-content">{t("firstName")}</label>
+            <input name="firstName" required className="input-field" />
           </div>
           <div>
-            <label className="block text-sm font-medium mb-2">Last Name</label>
-            <input name="lastName" required className="w-full rounded-xl border border-slate-200 px-4 py-3 focus:ring-2 focus:ring-primary dark:bg-slate-800" />
+            <label className="block text-sm font-medium mb-2 text-content">{t("lastName")}</label>
+            <input name="lastName" required className="input-field" />
           </div>
         </div>
         <div>
-          <label className="block text-sm font-medium mb-2">Phone</label>
-          <input name="phone" required type="tel" className="w-full rounded-xl border border-slate-200 px-4 py-3 focus:ring-2 focus:ring-primary dark:bg-slate-800" />
+          <label className="block text-sm font-medium mb-2 text-content">{t("phone")}</label>
+          <input name="phone" required type="tel" className="input-field" />
         </div>
         <div>
-          <label className="block text-sm font-medium mb-2">Email</label>
-          <input name="email" type="email" className="w-full rounded-xl border border-slate-200 px-4 py-3 focus:ring-2 focus:ring-primary dark:bg-slate-800" />
+          <label className="block text-sm font-medium mb-2 text-content">{t("email")}</label>
+          <input name="email" type="email" className="input-field" />
         </div>
         <div>
-          <label className="block text-sm font-medium mb-2">Address</label>
-          <input name="address" className="w-full rounded-xl border border-slate-200 px-4 py-3 focus:ring-2 focus:ring-primary dark:bg-slate-800" />
+          <label className="block text-sm font-medium mb-2 text-content">{t("address")}</label>
+          <input name="address" className="input-field" />
         </div>
-        <Button type="submit" disabled={loading}>{loading ? "Creating..." : "Create Patient"}</Button>
+        <div className="grid sm:grid-cols-2 gap-6">
+          <div>
+            <label className="block text-sm font-medium mb-2 text-content">{t("dateOfBirth")}</label>
+            <input name="dateOfBirth" type="date" className="input-field" />
+          </div>
+          <div>
+            <label className="block text-sm font-medium mb-2 text-content">{t("gender")}</label>
+            <select name="gender" className="input-field">
+              <option value="">—</option>
+              <option value="male">Male</option>
+              <option value="female">Female</option>
+            </select>
+          </div>
+        </div>
+        <Button type="submit" disabled={loading}>{loading ? t("creating") : t("createPatient")}</Button>
       </form>
     </div>
   );
 }
+
+}
+
+

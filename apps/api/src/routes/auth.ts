@@ -1,12 +1,11 @@
 import { Router } from "express";
-import bcrypt from "bcryptjs";
 import jwt from "jsonwebtoken";
-import { PrismaClient } from "database";
 import { loginSchema } from "shared";
-import type { LoginResponse, AuthUser } from "shared";
+import type { AuthUser } from "shared";
+import { DEMO_CREDENTIALS } from "../mockData.js";
+import { authenticate, AuthRequest } from "../middleware/auth.js";
 
 const router = Router();
-const prisma = new PrismaClient();
 
 const JWT_SECRET = process.env.JWT_SECRET || "secret";
 const JWT_EXPIRES = "7d";
@@ -18,48 +17,85 @@ router.post("/login", async (req, res) => {
   }
   const { email, password } = parsed.data;
 
-  const user = await prisma.user.findUnique({
-    where: { email, isActive: true },
-    include: { doctor: true, patient: true },
-  });
-  if (!user) {
-    return res.status(401).json({ code: "INVALID_CREDENTIALS", message: "Invalid email or password" });
+  // Demo login — works without database (no PostgreSQL/Docker needed)
+  const demo = Object.values(DEMO_CREDENTIALS).find((d) => d.email === email && d.password === password);
+  if (demo) {
+    const names: Record<string, [string, string]> = {
+      ADMIN: ["Demo", "Admin"],
+      DOCTOR: ["Ahmed", "Hassan"],
+      PATIENT: ["Patient", "User"],
+      RECEPTION: ["Reception", "Staff"],
+    };
+    const [firstName, lastName] = names[demo.role] ?? ["User", "Demo"];
+    const authUser: AuthUser = { id: `demo-${demo.role.toLowerCase()}`, email: demo.email, role: demo.role, firstName, lastName };
+    const accessToken = jwt.sign({ userId: authUser.id, email: authUser.email, role: authUser.role }, JWT_SECRET, { expiresIn: "1h" });
+    const refreshToken = jwt.sign(
+      { userId: authUser.id, email: authUser.email, role: authUser.role, firstName, lastName },
+      JWT_SECRET,
+      { expiresIn: JWT_EXPIRES }
+    );
+    return res.json({ accessToken, refreshToken, expiresIn: 3600, user: authUser });
   }
 
-  const valid = await bcrypt.compare(password, user.passwordHash);
-  if (!valid) {
-    return res.status(401).json({ code: "INVALID_CREDENTIALS", message: "Invalid email or password" });
+  // Real login requires database — return error if demo credentials not used
+  return res.status(401).json({ code: "INVALID_CREDENTIALS", message: "Invalid email or password. Use demo@dental.com / Demo@123" });
+});
+
+router.post("/refresh", (req, res) => {
+  const { refreshToken } = req.body;
+  if (!refreshToken) {
+    return res.status(400).json({ code: "VALIDATION_ERROR", message: "refreshToken required" });
   }
+  try {
+    const payload = jwt.verify(refreshToken, JWT_SECRET) as {
+      userId: string;
+      email: string;
+      role: AuthUser["role"];
+      firstName: string;
+      lastName: string;
+    };
+    const authUser: AuthUser = {
+      id: payload.userId,
+      email: payload.email,
+      role: payload.role,
+      firstName: payload.firstName ?? "User",
+      lastName: payload.lastName ?? "",
+    };
+    const accessToken = jwt.sign(
+      { userId: authUser.id, email: authUser.email, role: authUser.role },
+      JWT_SECRET,
+      { expiresIn: "1h" }
+    );
+    const newRefreshToken = jwt.sign(
+      { userId: authUser.id, email: authUser.email, role: authUser.role, firstName: authUser.firstName, lastName: authUser.lastName },
+      JWT_SECRET,
+      { expiresIn: JWT_EXPIRES }
+    );
+    return res.json({ accessToken, refreshToken: newRefreshToken, expiresIn: 3600, user: authUser });
+  } catch {
+    return res.status(401).json({ code: "INVALID_TOKEN", message: "Invalid or expired refresh token" });
+  }
+});
 
-  await prisma.user.update({
-    where: { id: user.id },
-    data: { lastLoginAt: new Date() },
-  });
-
-  const authUser: AuthUser = {
-    id: user.id,
-    email: user.email,
-    role: user.role,
-    firstName: user.firstName,
-    lastName: user.lastName,
-    phone: user.phone ?? undefined,
-    avatar: user.avatar ?? undefined,
+router.get("/me", authenticate, (req: AuthRequest, res) => {
+  const payload = req.user;
+  if (!payload) return res.status(401).json({ code: "UNAUTHORIZED", message: "Not authenticated" });
+  const demo = Object.values(DEMO_CREDENTIALS).find((d) => d.email === payload!.email);
+  const names: Record<string, [string, string]> = {
+    ADMIN: ["Demo", "Admin"],
+    DOCTOR: ["Ahmed", "Hassan"],
+    PATIENT: ["Patient", "User"],
+    RECEPTION: ["Reception", "Staff"],
   };
-
-  const accessToken = jwt.sign(
-    { userId: user.id, email: user.email, role: user.role },
-    JWT_SECRET,
-    { expiresIn: "1h" }
-  );
-  const refreshToken = jwt.sign({ userId: user.id }, JWT_SECRET, { expiresIn: JWT_EXPIRES });
-
-  const response: LoginResponse = {
-    accessToken,
-    refreshToken,
-    expiresIn: 3600,
-    user: authUser,
+  const [firstName, lastName] = demo ? names[demo.role] ?? ["User", ""] : ["User", ""];
+  const user: AuthUser = {
+    id: payload.userId,
+    email: payload.email,
+    role: payload.role,
+    firstName,
+    lastName,
   };
-  res.json(response);
+  return res.json({ user });
 });
 
 export const authRoutes = router;

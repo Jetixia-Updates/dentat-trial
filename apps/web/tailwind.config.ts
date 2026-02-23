@@ -20,9 +20,9 @@ const config: Config = {
           muted: "#f0f9ff",
         },
         content: {
-          DEFAULT: "#0c4a6e",
-          soft: "#0369a1",
-          muted: "#0ea5e9",
+          DEFAULT: "#0f172a",
+          soft: "#334155",
+          muted: "#64748b",
         },
       },
       fontFamily: {
@@ -40,6 +40,7 @@ const config: Config = {
       },
       backdropBlur: {
         xs: "2px",
+        md: "12px",
       },
     },
   },

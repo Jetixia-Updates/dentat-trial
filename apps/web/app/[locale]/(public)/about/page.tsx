@@ -7,7 +7,7 @@ export default function AboutPage() {
   const t = useTranslations("about");
 
   return (
-    <main className="pt-24 pb-16">
+    <main className="pt-8 pb-16">
       <div className="max-w-4xl mx-auto px-4 text-center">
         <h1 className="text-4xl font-bold text-content">{t("title")}</h1>
         <p className="mt-6 text-lg text-content-soft">{t("subtitle")}</p>

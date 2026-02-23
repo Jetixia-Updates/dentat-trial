@@ -1,8 +1,9 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { useRouter } from "@/i18n/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import { Link } from "@/i18n/navigation";
+import { useTranslations } from "next-intl";
 import { api } from "@/lib/api";
 import { Button } from "@/components/ui/Button";
 import { ArrowLeft } from "lucide-react";
@@ -22,8 +23,21 @@ interface Patient {
   lastName: string;
 }
 
+const DEPARTMENTS = [
+  "GENERAL_DENTISTRY",
+  "ORTHODONTICS",
+  "COSMETIC_DENTISTRY",
+  "ORAL_SURGERY",
+  "PEDIATRIC_DENTISTRY",
+  "PERIODONTICS",
+  "RADIOLOGY",
+];
+
 export default function NewAppointmentPage() {
   const router = useRouter();
+  const searchParams = useSearchParams();
+  const patientIdFromUrl = searchParams.get("patientId") || "";
+  const t = useTranslations("admin");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
   const [branches, setBranches] = useState<Branch[]>([]);
@@ -44,6 +58,13 @@ export default function NewAppointmentPage() {
       .catch(() => {});
   }, []);
 
+  useEffect(() => {
+    if (!patientIdFromUrl) return;
+    api<Patient>(`/api/patients/${patientIdFromUrl}`)
+      .then((p) => setPatients((prev) => (prev.some((x) => x.id === p.id) ? prev : [p, ...prev])))
+      .catch(() => {});
+  }, [patientIdFromUrl]);
+
   async function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
     setError("");
@@ -60,7 +81,9 @@ export default function NewAppointmentPage() {
           date: data.get("date"),
           startTime: data.get("startTime") || "09:00",
           endTime: data.get("endTime") || "09:30",
-          department: "GENERAL_DENTISTRY",
+          department: data.get("department") || "GENERAL_DENTISTRY",
+          reason: data.get("reason") || undefined,
+          notes: data.get("notes") || undefined,
         }),
       });
       router.push("/admin/appointments");
@@ -73,53 +96,73 @@ export default function NewAppointmentPage() {
 
   return (
     <div>
-      <Link href="/admin/appointments" className="inline-flex items-center gap-2 text-slate-600 hover:text-primary mb-6">
+      <Link href="/admin/appointments" className="inline-flex items-center gap-2 text-primary hover:underline mb-6">
         <ArrowLeft className="w-4 h-4" />
-        Back to Appointments
+        {t("backToAppointments")}
       </Link>
-      <h1 className="text-3xl font-bold text-slate-900 dark:text-white mb-8">New Appointment</h1>
+      <h1 className="text-3xl font-bold text-content mb-8">{t("newAppointment")}</h1>
       <form onSubmit={handleSubmit} className="glass rounded-2xl p-8 max-w-xl space-y-6">
         {error && (
-          <div className="rounded-xl bg-red-50 dark:bg-red-900/20 text-red-600 px-4 py-3">{error}</div>
+          <div className="rounded-xl bg-red-50 text-red-600 dark:bg-red-900/20 px-4 py-3">{error}</div>
         )}
         <div>
-          <label className="block text-sm font-medium mb-2">Patient</label>
-          <select name="patientId" required className="w-full rounded-xl border border-slate-200 px-4 py-3 focus:ring-2 focus:ring-primary dark:bg-slate-800">
-            <option value="">Select patient</option>
+          <label className="block text-sm font-medium mb-2 text-content">{t("patient")}</label>
+          <select name="patientId" required className="input-field" defaultValue={patientIdFromUrl}>
+            <option value="">{t("selectPatient")}</option>
             {patients.map((p) => (
               <option key={p.id} value={p.id}>{p.firstName} {p.lastName}</option>
             ))}
           </select>
         </div>
         <div>
-          <label className="block text-sm font-medium mb-2">Doctor</label>
-          <select name="doctorId" required className="w-full rounded-xl border border-slate-200 px-4 py-3 focus:ring-2 focus:ring-primary dark:bg-slate-800">
-            <option value="">Select doctor</option>
+          <label className="block text-sm font-medium mb-2 text-content">{t("doctorName")}</label>
+          <select name="doctorId" required className="input-field">
+            <option value="">{t("selectDoctor")}</option>
             {doctors.map((d) => (
               <option key={d.id} value={d.id}>Dr. {d.user.firstName} {d.user.lastName} – {d.specialty}</option>
             ))}
           </select>
         </div>
         <div>
-          <label className="block text-sm font-medium mb-2">Branch</label>
-          <select name="branchId" required className="w-full rounded-xl border border-slate-200 px-4 py-3 focus:ring-2 focus:ring-primary dark:bg-slate-800">
-            <option value="">Select branch</option>
+          <label className="block text-sm font-medium mb-2 text-content">{t("branches")}</label>
+          <select name="branchId" required className="input-field">
+            <option value="">{t("selectBranch")}</option>
             {branches.map((b) => (
               <option key={b.id} value={b.id}>{b.name}</option>
             ))}
           </select>
         </div>
+        <div>
+          <label className="block text-sm font-medium mb-2 text-content">{t("department")}</label>
+          <select name="department" className="input-field">
+            {DEPARTMENTS.map((d) => (
+              <option key={d} value={d}>{d.replace(/_/g, " ")}</option>
+            ))}
+          </select>
+        </div>
         <div className="grid sm:grid-cols-2 gap-6">
           <div>
-            <label className="block text-sm font-medium mb-2">Date</label>
-            <input name="date" required type="date" className="w-full rounded-xl border border-slate-200 px-4 py-3 focus:ring-2 focus:ring-primary dark:bg-slate-800" />
+            <label className="block text-sm font-medium mb-2 text-content">{t("date")}</label>
+            <input name="date" required type="date" className="input-field" />
           </div>
           <div>
-            <label className="block text-sm font-medium mb-2">Time</label>
-            <input name="startTime" type="time" defaultValue="09:00" className="w-full rounded-xl border border-slate-200 px-4 py-3 focus:ring-2 focus:ring-primary dark:bg-slate-800" />
+            <label className="block text-sm font-medium mb-2 text-content">{t("time")}</label>
+            <input name="startTime" type="time" defaultValue="09:00" className="input-field" />
           </div>
         </div>
-        <Button type="submit" disabled={loading}>{loading ? "Creating..." : "Create Appointment"}</Button>
+        <div>
+          <label className="block text-sm font-medium mb-2 text-content">{t("endTime")}</label>
+          <input name="endTime" type="time" defaultValue="09:30" className="input-field" />
+        </div>
+        <div>
+          <label className="block text-sm font-medium mb-2 text-content">{t("reason")}</label>
+          <input name="reason" className="input-field" placeholder={t("reason")} />
+        </div>
+        <div>
+          <label className="block text-sm font-medium mb-2 text-content">{t("notes")}</label>
+          <textarea name="notes" rows={2} className="input-field" placeholder={t("notes")} />
+        </div>
+        <Button type="submit" disabled={loading}>{loading ? t("creating") : t("createAppointment")}</Button>
       </form>
     </div>
   );

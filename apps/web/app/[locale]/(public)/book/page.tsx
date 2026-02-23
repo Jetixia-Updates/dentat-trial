@@ -1,9 +1,10 @@
 "use client";
 
-import { useTranslations } from "next-intl";
+import { useTranslations, useLocale } from "next-intl";
 import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/Button";
 import { api } from "@/lib/api";
+import { INSURANCE_COMPANIES_EGYPT } from "@/data/insurance";
 
 interface Branch {
   id: string;
@@ -19,6 +20,7 @@ interface Doctor {
 
 export default function BookPage() {
   const t = useTranslations("book");
+  const locale = useLocale();
   const [branches, setBranches] = useState<Branch[]>([]);
   const [doctors, setDoctors] = useState<Doctor[]>([]);
   const [loading, setLoading] = useState(false);
@@ -48,6 +50,7 @@ export default function BookPage() {
       return;
     }
     try {
+      const insuranceId = data.get("insuranceId");
       await api<{ success: boolean }>("/api/bookings", {
         method: "POST",
         body: JSON.stringify({
@@ -57,6 +60,7 @@ export default function BookPage() {
           branchId: String(branchId),
           doctorId: String(doctorId),
           date: data.get("date"),
+          insuranceId: insuranceId ? String(insuranceId) : undefined,
         }),
       });
       setSent(true);
@@ -69,7 +73,7 @@ export default function BookPage() {
 
   if (sent) {
     return (
-      <main className="pt-24 pb-16 min-h-[60vh] flex items-center justify-center">
+      <main className="pt-8 pb-16 min-h-[60vh] flex items-center justify-center">
         <div className="text-center glass rounded-2xl p-12 max-w-md mx-4">
           <h2 className="text-2xl font-bold text-primary">{t("successTitle")}</h2>
           <p className="mt-4 text-content-soft">{t("successMsg")}</p>
@@ -79,7 +83,7 @@ export default function BookPage() {
   }
 
   return (
-    <main className="pt-24 pb-16">
+    <main className="pt-8 pb-16">
       <div className="max-w-2xl mx-auto px-4">
         <h1 className="text-4xl font-bold text-content text-center">{t("title")}</h1>
         <form onSubmit={handleSubmit} className="mt-12 glass rounded-2xl p-8 space-y-6">
@@ -88,7 +92,7 @@ export default function BookPage() {
             <input
               name="name"
               required
-              className="w-full rounded-xl border border-cyan-200 bg-white px-4 py-3 focus:ring-2 focus:ring-primary"
+              className="w-full rounded-xl border border-slate-200 bg-white text-slate-900 px-4 py-3 placeholder:text-slate-500 focus:ring-2 focus:ring-primary"
               placeholder={t("name")}
             />
           </div>
@@ -98,7 +102,7 @@ export default function BookPage() {
               name="phone"
               required
               type="tel"
-              className="w-full rounded-xl border border-cyan-200 bg-white px-4 py-3 focus:ring-2 focus:ring-primary"
+              className="w-full rounded-xl border border-slate-200 bg-white text-slate-900 px-4 py-3 placeholder:text-slate-500 focus:ring-2 focus:ring-primary"
               placeholder="+20 123 456 789"
             />
           </div>
@@ -107,7 +111,7 @@ export default function BookPage() {
             <input
               name="email"
               type="email"
-              className="w-full rounded-xl border border-cyan-200 bg-white px-4 py-3 focus:ring-2 focus:ring-primary"
+              className="w-full rounded-xl border border-slate-200 bg-white text-slate-900 px-4 py-3 placeholder:text-slate-500 focus:ring-2 focus:ring-primary"
               placeholder="email@example.com"
             />
           </div>
@@ -116,7 +120,7 @@ export default function BookPage() {
             <select
               name="branchId"
               required
-              className="w-full rounded-xl border border-cyan-200 bg-white px-4 py-3 focus:ring-2 focus:ring-primary"
+              className="w-full rounded-xl border border-slate-200 bg-white text-slate-900 px-4 py-3 placeholder:text-slate-500 focus:ring-2 focus:ring-primary"
             >
               <option value="">{t("selectBranch")}</option>
               {branches.map((b) => (
@@ -131,7 +135,7 @@ export default function BookPage() {
             <select
               name="doctorId"
               required
-              className="w-full rounded-xl border border-cyan-200 bg-white px-4 py-3 focus:ring-2 focus:ring-primary"
+              className="w-full rounded-xl border border-slate-200 bg-white text-slate-900 px-4 py-3 placeholder:text-slate-500 focus:ring-2 focus:ring-primary"
             >
               <option value="">{t("selectDoctor")}</option>
               {doctors.map((d) => (
@@ -147,8 +151,22 @@ export default function BookPage() {
               name="date"
               type="date"
               required
-              className="w-full rounded-xl border border-cyan-200 bg-white px-4 py-3 focus:ring-2 focus:ring-primary"
+              className="w-full rounded-xl border border-slate-200 bg-white text-slate-900 px-4 py-3 placeholder:text-slate-500 focus:ring-2 focus:ring-primary"
             />
+          </div>
+          <div>
+            <label className="block text-sm font-medium mb-2">{t("insurance")}</label>
+            <select
+              name="insuranceId"
+              className="w-full rounded-xl border border-slate-200 bg-white text-slate-900 px-4 py-3 placeholder:text-slate-500 focus:ring-2 focus:ring-primary"
+            >
+              <option value="">{t("selectInsurance")}</option>
+              {INSURANCE_COMPANIES_EGYPT.map((c) => (
+                <option key={c.id} value={c.id}>
+                  {locale === "ar" ? c.nameAr : c.nameEn}
+                </option>
+              ))}
+            </select>
           </div>
           <Button type="submit" className="w-full" disabled={loading}>
             {loading ? t("sending") : t("requestAppointment")}
