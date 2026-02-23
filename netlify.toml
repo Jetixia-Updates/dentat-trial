@@ -1,0 +1,16 @@
+# Netlify – تطبيق Next.js (من مسار apps/web)
+# المشروع monorepo بـ pnpm
+
+[build]
+  base = "apps/web"
+  command = "cd ../.. && pnpm install && pnpm --filter web build"
+
+[build.environment]
+  NODE_VERSION = "18"
+  NPM_FLAGS = "--legacy-peer-deps"
+
+# إعادة كتابة الـ API للواجهة الأمامية (الـ API يستدعى من مكان آخر في الإنتاج)
+# اضبط NEXT_PUBLIC_API_URL في إعدادات Netlify إلى عنوان الـ API (مثلاً على Render أو Railway)
+
+[[plugins]]
+  package = "@netlify/plugin-nextjs"
