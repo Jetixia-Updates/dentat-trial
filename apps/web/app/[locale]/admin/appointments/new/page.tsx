@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, Suspense } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { Link } from "@/i18n/navigation";
 import { useTranslations } from "next-intl";
@@ -33,7 +33,7 @@ const DEPARTMENTS = [
   "RADIOLOGY",
 ];
 
-export default function NewAppointmentPage() {
+function NewAppointmentPageContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const patientIdFromUrl = searchParams.get("patientId") || "";
@@ -165,5 +165,13 @@ export default function NewAppointmentPage() {
         <Button type="submit" disabled={loading}>{loading ? t("creating") : t("createAppointment")}</Button>
       </form>
     </div>
+  );
+}
+
+export default function NewAppointmentPage() {
+  return (
+    <Suspense fallback={<div className="p-8 text-content-soft">Loading...</div>}>
+      <NewAppointmentPageContent />
+    </Suspense>
   );
 }

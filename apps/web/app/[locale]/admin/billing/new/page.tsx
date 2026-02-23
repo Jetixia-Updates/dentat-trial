@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, Suspense } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { Link } from "@/i18n/navigation";
 import { useTranslations } from "next-intl";
@@ -20,7 +20,7 @@ interface Appointment {
   patient: { firstName: string; lastName: string };
 }
 
-export default function NewBillPage() {
+function NewBillPageContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const patientIdFromUrl = searchParams.get("patientId") || "";
@@ -112,5 +112,13 @@ export default function NewBillPage() {
         <Button type="submit" disabled={loading}>{loading ? t("creating") : t("createBill")}</Button>
       </form>
     </div>
+  );
+}
+
+export default function NewBillPage() {
+  return (
+    <Suspense fallback={<div className="p-8 text-content-soft">Loading...</div>}>
+      <NewBillPageContent />
+    </Suspense>
   );
 }
